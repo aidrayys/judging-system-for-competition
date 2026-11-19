@@ -35,4 +35,28 @@ return [
 
     'ranking_method' => 'competition',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Demo access (login page)
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, the login page lists the seeded DEMO accounts so visitors
+    | can explore the app. The values mirror what the seeders create (same
+    | env overrides and defaults). Set DEMO_ACCESS=false for any non-demo use.
+    |
+    */
+
+    'demo_access' => (bool) env('DEMO_ACCESS', true),
+
+    'demo_accounts' => [
+        'admin' => [
+            'username' => env('APP_ADMIN_USERNAME', 'admin'),
+            'password' => env('APP_ADMIN_PASSWORD') ?: \Database\Seeders\AdminSeeder::DEFAULT_PASSWORD,
+        ],
+        'judges' => [
+            'password' => env('JUDGING_JUDGE_PASSWORD') ?: \Database\Seeders\JudgeSeeder::DEFAULT_PASSWORD,
+            'accounts' => \Database\Seeders\JudgeSeeder::JUDGES,
+        ],
+    ],
+
 ];

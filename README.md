@@ -77,16 +77,21 @@ Reset to a pristine demo at any time: `php artisan migrate:fresh --seed`.
 
 ## Demo accounts (demo-only, fictional)
 
-| Role | Username | Password |
-|---|---|---|
-| Administrator | `admin` | `Admin@Demo2026` |
-| Judges A–E | `judge_a` … `judge_e` | `Judge@Demo2026` |
+The login page has a **Demo Access** section (with Copy buttons) that lists these accounts; the input fields themselves stay empty. Set `DEMO_ACCESS=false` in `.env` to hide the section.
+
+| Role | Username | Password | What this role can access |
+|---|---|---|---|
+| Administrator | `admin` | `Admin@Demo2026` | Admin area (`/admin`): dashboard, finalists, presentations, rubric, judges, all evaluations, results & release, voting administration (period, codes, finalize, CSV export), settings. |
+| Judge | `judge_a`, `judge_b`, `judge_c`, `judge_d`, `judge_e` (same password for all) | `Judge@Demo2026` | Judge area (`/judge`): own dashboard and evaluations only — score, autosave, submit and correct their own evaluations while judging is open. No access to `/admin` (HTTP 403). |
+
+The public Favorite Idea voting pages (`/voting`) need no account, only a voting code.
 
 Public voting codes to try: **10061, 10062, 10063, 10064, 10065** (unused). Codes 10001–10060 are already used by seeded ballots.
 
 Seeded data: 2 categories, 12 criteria, 15 finalists (Participant 001–015, Departments A–D), 73 evaluations by 5 judges (submitted and in-progress), 65 voting codes and 60 ballots. Judge E deliberately has unfinished work to demonstrate status tracking.
 
-> The admin password defaults to the documented value when `APP_ADMIN_PASSWORD` is empty in `.env`. > These credentials are public placeholders. Never deploy this demo to a public host without changing them.
+> The admin password defaults to the documented value when `APP_ADMIN_PASSWORD` is empty in `.env`.
+> These credentials are public, demo-only placeholders. Never deploy this demo to a public host without changing them and setting `DEMO_ACCESS=false`.
 
 ## Tests
 

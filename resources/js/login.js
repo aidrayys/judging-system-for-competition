@@ -32,6 +32,50 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    /* ---------- demo access: copy buttons and judge picker (no dependencies) ---------- */
+    const copyText = async (text) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch (error) {
+            const area = document.createElement('textarea');
+            area.value = text;
+            area.setAttribute('readonly', '');
+            area.style.position = 'fixed';
+            area.style.opacity = '0';
+            document.body.appendChild(area);
+            area.select();
+            let ok = false;
+            try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+            document.body.removeChild(area);
+            return ok;
+        }
+    };
+
+    document.querySelectorAll('[data-copy-target]').forEach((button) => {
+        button.addEventListener('click', async () => {
+            const source = document.getElementById(button.dataset.copyTarget);
+            if (! source) return;
+            const ok = await copyText(source.textContent.trim());
+            const original = button.dataset.label || button.textContent;
+            button.dataset.label = original;
+            button.textContent = ok ? 'Copied' : 'Press Ctrl+C';
+            button.classList.toggle('is-copied', ok);
+            window.setTimeout(() => {
+                button.textContent = original;
+                button.classList.remove('is-copied');
+            }, 1500);
+        });
+    });
+
+    const judgeSelect = document.getElementById('demoJudgeSelect');
+    const judgeUser = document.getElementById('demoJudgeUser');
+    if (judgeSelect && judgeUser) {
+        judgeSelect.addEventListener('change', () => {
+            judgeUser.textContent = judgeSelect.value;
+        });
+    }
+
     /* ---------- loading state on submit ---------- */
     const submitButton = document.getElementById('signInButton');
 

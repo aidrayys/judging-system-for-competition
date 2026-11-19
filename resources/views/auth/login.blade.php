@@ -99,7 +99,7 @@
                 </div>
 
                 <h2 class="jc-card__title">Welcome</h2>
-                <p class="jc-card__subtitle">Sign in with your username and password. Demo accounts are listed in the README.</p>
+                <p class="jc-card__subtitle">Sign in with your username and password, or use the demo accounts below.</p>
 
                 @if (session('status'))
                     <div class="jc-alert jc-alert--ok" role="status">{{ session('status') }}</div>
@@ -182,6 +182,58 @@
                         </svg>
                     </button>
                 </form>
+
+                @if (config('judging.demo_access'))
+                    @php
+                        $demoAdmin = config('judging.demo_accounts.admin');
+                        $demoJudges = config('judging.demo_accounts.judges');
+                        $firstJudge = $demoJudges['accounts'][0] ?? null;
+                    @endphp
+                    <section class="jc-demo" aria-labelledby="demoTitle">
+                        <h3 class="jc-demo__title" id="demoTitle">Demo Access</h3>
+
+                        <div class="jc-demo__grid">
+                            <div class="jc-demo__card">
+                                <p class="jc-demo__role">Administrator</p>
+                                <div class="jc-demo__row">
+                                    <span class="jc-demo__label">Username</span>
+                                    <code class="jc-demo__value" id="demoAdminUser">{{ $demoAdmin['username'] }}</code>
+                                    <button type="button" class="jc-demo__copy" data-copy-target="demoAdminUser" aria-label="Copy administrator username">Copy</button>
+                                </div>
+                                <div class="jc-demo__row">
+                                    <span class="jc-demo__label">Password</span>
+                                    <code class="jc-demo__value" id="demoAdminPass">{{ $demoAdmin['password'] }}</code>
+                                    <button type="button" class="jc-demo__copy" data-copy-target="demoAdminPass" aria-label="Copy administrator password">Copy</button>
+                                </div>
+                            </div>
+
+                            @if ($firstJudge)
+                                <div class="jc-demo__card">
+                                    <div class="jc-demo__roleline">
+                                        <p class="jc-demo__role">Judge</p>
+                                        <select class="jc-demo__select" id="demoJudgeSelect" aria-label="Choose a demo judge account">
+                                            @foreach ($demoJudges['accounts'] as $judge)
+                                                <option value="{{ $judge['username'] }}">{{ $judge['name'] }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="jc-demo__row">
+                                        <span class="jc-demo__label">Username</span>
+                                        <code class="jc-demo__value" id="demoJudgeUser">{{ $firstJudge['username'] }}</code>
+                                        <button type="button" class="jc-demo__copy" data-copy-target="demoJudgeUser" aria-label="Copy judge username">Copy</button>
+                                    </div>
+                                    <div class="jc-demo__row">
+                                        <span class="jc-demo__label">Password</span>
+                                        <code class="jc-demo__value" id="demoJudgePass">{{ $demoJudges['password'] }}</code>
+                                        <button type="button" class="jc-demo__copy" data-copy-target="demoJudgePass" aria-label="Copy judge password">Copy</button>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+
+                        <p class="jc-demo__note">Demo accounts are provided for exploration purposes.</p>
+                    </section>
+                @endif
             </div>
         </section>
     </div>
