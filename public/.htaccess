@@ -1,0 +1,80 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    # %{CONTEXT_PREFIX} is set by Apache: a sub-path alias when served through
+    # an Apache Alias, empty when this folder is
+    # a document root. No path or host is hard-coded, and a relative
+    # "index.php" would loop under an Alias (AH00124).
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ %{CONTEXT_PREFIX}/index.php [L]
+</IfModule>
+
+# =====================================================================
+# Judging System for Competition performance (Apache only; ignored by `php artisan serve`).
+# Dynamic pages (login, voting, judging) keep Laravel's own
+# "Cache-Control: no-store" header from PreventStaleHtmlCache - these
+# rules only touch real static files that exist on disk.
+# =====================================================================
+
+# --- Browser caching -----------------------------------------------
+<IfModule mod_headers.c>
+    # Vite output is content-hashed (app-XXXX.css): a new build = a new URL,
+    # so it can be cached "forever" without ever serving a stale version.
+    # The optional "(/[^/]+)?" prefix keeps these rules working when the app
+    # is served from a sub-path (Apache Alias) as well as from "/".
+    <If "%{REQUEST_URI} =~ m#^(/[^/]+)?/build/assets/#">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </If>
+    # Self-hosted fonts never change.
+    <ElseIf "%{REQUEST_URI} =~ m#^(/[^/]+)?/fonts/#">
+        Header set Cache-Control "public, max-age=2592000"
+    </ElseIf>
+    # Un-hashed images: cache 1 day, then revalidate (ETag / Last-Modified
+    # give a cheap 304). Replacing a logo shows up within a day, or at once
+    # after a hard refresh.
+    <ElseIf "%{REQUEST_URI} =~ m#^(/[^/]+)?/(images/|favicon\.ico$|robots\.txt$)#">
+        Header set Cache-Control "public, max-age=86400"
+    </ElseIf>
+    # The manifest must always be fresh.
+    <ElseIf "%{REQUEST_URI} =~ m#^(/[^/]+)?/build/manifest\.json$#">
+        Header set Cache-Control "no-cache"
+    </ElseIf>
+</IfModule>
+
+# --- Compression (Brotli when the browser accepts it, else gzip) -----
+# Only text types; images/fonts/PDF are already compressed. Downloads of
+# presentation files (application/pdf, ...) are never touched.
+<IfModule mod_filter.c>
+    <IfModule mod_brotli.c>
+        <IfModule mod_deflate.c>
+            AddOutputFilterByType BROTLI_COMPRESS;DEFLATE text/html text/css text/plain application/javascript text/javascript application/json image/svg+xml
+        </IfModule>
+        <IfModule !mod_deflate.c>
+            AddOutputFilterByType BROTLI_COMPRESS text/html text/css text/plain application/javascript text/javascript application/json image/svg+xml
+        </IfModule>
+    </IfModule>
+    <IfModule !mod_brotli.c>
+        <IfModule mod_deflate.c>
+            AddOutputFilterByType DEFLATE text/html text/css text/plain application/javascript text/javascript application/json image/svg+xml
+        </IfModule>
+    </IfModule>
+</IfModule>
